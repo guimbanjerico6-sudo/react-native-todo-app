@@ -8,6 +8,13 @@ export default function HomeScreen() {
     { id: 3, text: 'Master coding', completed: false },
   ]);
 
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [searchText, setSearchText] = useState('');
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   const [inputText, setInputText] = useState('');
 
   const addTodo = () => {
@@ -39,21 +46,53 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>My Todo List</Text>
+    // FIXED: Added dynamic background color for dark mode
+    <View style={[
+      styles.container,
+      { backgroundColor: isDarkMode ? '#090909ff' : '#f5f5f5' }
+    ]}>
+      {/* Dark Mode Toggle Button */}
+      <TouchableOpacity 
+        style={styles.darkModeButton} 
+        onPress={toggleDarkMode}
+      >
+        <Text style={styles.darkModeText}>
+          {isDarkMode ? '☀️ Light' : '🌙 Dark'}
+        </Text>
+      </TouchableOpacity>
+
+      {/* FIXED: Added dynamic text color for dark mode */}
+      <Text style={[
+        styles.title,
+        { color: isDarkMode ? '#ffffff' : '#333' }
+      ]}>
+        My Todo List
+      </Text>
       
-      {/* CHALLENGE 4: Counter */}
-      <Text style={styles.counter}>You have {todos.length} tasks</Text>
+      {/* FIXED: Added dynamic text color for counter */}
+      <Text style={[
+        styles.counter,
+        { color: isDarkMode ? '#ffffff' : '#333' }
+      ]}>
+        You have {todos.length} tasks
+      </Text>
       
-      {/* CHALLENGE 7: Clear All Button */}
+      {/* Clear All Button */}
       <TouchableOpacity style={styles.clearButton} onPress={clearAll}>
         <Text style={styles.clearButtonText}>Clear All</Text>
       </TouchableOpacity>
       
       <View style={styles.inputContainer}>
         <TextInput
-          style={styles.input}
-          placeholder="✨ What do you need to do?"  // CHALLENGE 5
+          style={[
+            styles.input,
+            { 
+              backgroundColor: isDarkMode ? '#1c1c1e' : 'white',
+              color: isDarkMode ? '#ffffff' : '#333'
+            }
+          ]}
+          placeholder="✨ What do you need to do?"
+          placeholderTextColor={isDarkMode ? '#8e8e93' : '#999'}
           value={inputText}
           onChangeText={setInputText}
         />
@@ -61,12 +100,33 @@ export default function HomeScreen() {
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Text style={styles.searchIcon}>🔍</Text>
+        <TextInput
+          style={[styles.searchInput, { 
+            backgroundColor: isDarkMode ? '#2a2a2a' : 'white',
+            color: isDarkMode ? '#ffffff' : '#333'
+          }]}
+          placeholder="Search todos..."
+          placeholderTextColor={isDarkMode ? '#888' : '#999'}
+          value={searchText}
+          onChangeText={setSearchText}
+        />
+      </View>
+
       
-      {/* CHALLENGE 8: Checkboxes */}
+      {/* Todo List with Checkboxes */}
       <FlatList
-        data={todos}
+        data={todos.filter(todo => 
+          todo.text.toLowerCase().includes(searchText.toLowerCase())
+        )}
         renderItem={({ item }) => (
-          <View style={styles.todoItem}>
+          <View style={[
+            styles.todoItem,
+            { backgroundColor: isDarkMode ? '#1c1c1e' : 'white' }
+          ]}>
             <TouchableOpacity 
               style={styles.checkbox} 
               onPress={() => toggleComplete(item.id)}
@@ -76,6 +136,7 @@ export default function HomeScreen() {
             
             <Text style={[
               styles.todoText,
+              { color: isDarkMode ? '#ffffff' : '#333' },
               item.completed && styles.todoTextCompleted
             ]}>
               {item.text}
@@ -95,19 +156,16 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
     marginTop: 60,
     marginLeft: 20,
     marginBottom: 10,
   },
   counter: {
     fontSize: 18,
-    color: '#666',
     marginLeft: 20,
     marginBottom: 15,
   },
@@ -132,10 +190,9 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: 'white',
-    padding: 20,        // CHALLENGE 6: Bigger
+    padding: 20,        
     borderRadius: 10,
-    fontSize: 18,       // CHALLENGE 6: Bigger text
+    fontSize: 18,      
   },
   addButton: {
     backgroundColor: '#007AFF',
@@ -151,7 +208,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   todoItem: {
-    backgroundColor: 'white',
     padding: 15,
     marginHorizontal: 20,
     marginBottom: 10,
@@ -177,7 +233,6 @@ const styles = StyleSheet.create({
   todoText: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
   },
   todoTextCompleted: {
     textDecorationLine: 'line-through',
@@ -186,4 +241,37 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 24,
   },
+  darkModeButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    zIndex: 1,
+  },
+  darkModeText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  searchContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginHorizontal: 20,
+  marginBottom: 15,
+  backgroundColor: 'white',
+  borderRadius: 10,
+  paddingHorizontal: 15,
+},
+searchIcon: {
+  fontSize: 18,
+  marginRight: 8,
+},
+searchInput: {
+  flex: 1,
+  padding: 12,
+  fontSize: 16,
+},
 });
